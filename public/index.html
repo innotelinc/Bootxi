@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>imgboot — bootable ISOs & VMs from disk images</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">◈</span>
+        <div>
+          <h1>imgboot</h1>
+          <p>Disk images → bootable ISOs, VMware and VirtualBox machines</p>
+        </div>
+      </div>
+      <div class="badges" id="badges"></div>
+    </header>
+
+    <main>
+      <section class="card" id="source-card">
+        <h2>1 · Choose an image</h2>
+        <div class="dropzone" id="dropzone">
+          <strong>Drop a disk image here</strong>
+          <span>or <button class="link" id="browse-btn" type="button">browse this computer</button></span>
+          <small>.img · .raw · .dd · .ima · .iso · .img.gz · .img.xz · .zip · .vmdk · .vdi · .qcow2</small>
+        </div>
+        <div class="pathrow">
+          <input id="path" type="text" spellcheck="false" placeholder="C:\Users\you\Downloads\system.img" />
+          <button class="primary" id="inspect" type="button">Inspect</button>
+        </div>
+        <p class="hint" id="source-hint"></p>
+      </section>
+
+      <section class="card hidden" id="analysis-card">
+        <h2>2 · What's inside</h2>
+        <div class="facts" id="facts"></div>
+        <div class="parts" id="parts"></div>
+        <ul class="warnings hidden" id="warnings"></ul>
+      </section>
+
+      <section class="card hidden" id="targets-card">
+        <h2>3 · Pick outputs</h2>
+        <div class="targets" id="targets"></div>
+        <button class="link hidden" id="iso-only" type="button">Convert to ISO only</button>
+
+        <div class="options">
+          <label>
+            <span>Volume label</span>
+            <input id="opt-label" type="text" maxlength="32" spellcheck="false" />
+          </label>
+          <label>
+            <span>Firmware</span>
+            <select id="opt-firmware">
+              <option value="auto">Auto (detected)</option>
+              <option value="efi">UEFI</option>
+              <option value="bios">BIOS</option>
+            </select>
+          </label>
+          <label>
+            <span>Memory</span>
+            <select id="opt-memory">
+              <option value="1024">1 GB</option>
+              <option value="2048" selected>2 GB</option>
+              <option value="4096">4 GB</option>
+              <option value="8192">8 GB</option>
+            </select>
+          </label>
+          <label>
+            <span>vCPUs</span>
+            <select id="opt-cpus">
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="4">4</option>
+              <option value="8">8</option>
+            </select>
+          </label>
+          <label class="checkline" id="copy-line">
+            <input id="opt-copy" type="checkbox" />
+            <span>Copy the image instead of linking it</span>
+          </label>
+        </div>
+        <p class="hint" id="copy-hint"></p>
+        <button class="primary big" id="build" type="button">Create outputs</button>
+      </section>
+
+      <section class="card hidden" id="progress-card">
+        <h2>4 · Working</h2>
+        <div class="bar"><div class="fill" id="bar-fill"></div></div>
+        <div class="stepline"><span id="step">Starting…</span><span id="percent">0%</span></div>
+        <pre class="log" id="log"></pre>
+      </section>
+
+      <section class="card hidden" id="outputs-card">
+        <h2>5 · Done</h2>
+        <div class="outputs" id="outputs"></div>
+        <button class="ghost" id="open-folder" type="button">Show output folder</button>
+      </section>
+    </main>
+
+    <div class="modal hidden" id="browser-modal">
+      <div class="modal-inner">
+        <header>
+          <h3>Pick an image</h3>
+          <button class="link" id="browser-close" type="button">close</button>
+        </header>
+        <div class="quick" id="browser-quick"></div>
+        <div class="browser-path" id="browser-path"></div>
+        <div class="browser-list" id="browser-list"></div>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

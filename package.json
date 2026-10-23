@@ -1,0 +1,15 @@
+{
+  "name": "imgboot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Turn disk images into bootable ISOs, VMware VMs and VirtualBox VMs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/fixtures.js && node test/verify.js",
+    "test:boot": "node test/boot-check.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
