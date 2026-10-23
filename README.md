@@ -1,5 +1,7 @@
 # imgboot
 
+[![tests](https://github.com/innotelinc/Bootxi/actions/workflows/tests.yml/badge.svg)](https://github.com/innotelinc/Bootxi/actions/workflows/tests.yml)
+
 Turn disk images into things that actually boot: **bootable ISOs**, **VMware VMs** and **VirtualBox VMs**.
 
 Drop an `.img` in the browser, look at what's inside, pick your outputs, click create. It runs locally, needs no dependencies (`npm install` is not required) and uses the VMware/VirtualBox/7-Zip installs already on the machine.
