@@ -55,7 +55,7 @@ Firmware for new VMs follows the image: UEFI when an ESP is present, BIOS when o
 * **Unpacked inputs stay with their VM.** A compressed or virtual-disk input is unpacked to `<output>/staging/` so a zero-copy VMDK keeps a valid backing file; the folder is removed again when nothing links to it.
 * **GUI launch fallback.** "Open in VMware"/"Open in VirtualBox" tries the normal window first and falls back to a headless start, reporting it in the UI, for setups where the server has no desktop session.
 * VirtualBox machines are registered with VirtualBox (names like `myimage-imgboot-k3f9`), so they show up in its list and can be deleted there.
-* The ISO target needs `mkisofs` (ships with VMware Workstation). VirtualBox needs `VBoxManage`. 7-Zip is only used for compressed inputs.
+* The ISO target needs an mkisofs-compatible writer: `mkisofs` from VMware Workstation on Windows, or `genisoimage`/`cdrtools` on Linux and macOS (see below). VirtualBox needs `VBoxManage`. 7-Zip is used for compressed inputs, virtual disks, and for unpacking the EFI partition of a UEFI image.
 
 ### Configuration
 
@@ -64,6 +64,37 @@ Firmware for new VMs follows the image: UEFI when an ESP is present, BIOS when o
 | `IMGBOOT_PORT` | HTTP port (default `5183`; `PORT=0` is ignored) |
 | `IMGBOOT_OUT` | output root (default `./output`) |
 | `MKISOFS` / `VMRUN` / `VBOXMANAGE` / `SEVENZIP` | override tool paths |
+
+### Linux and macOS
+
+The ISO target shells out to an **mkisofs-compatible writer**: imgboot uses `MKISOFS` when it is set, otherwise it looks for `mkisofs` on `PATH`.
+
+**Linux** (Debian/Ubuntu):
+
+```bash
+sudo apt install genisoimage
+# Fedora: sudo dnf install genisoimage
+export MKISOFS="$(command -v genisoimage)"
+```
+
+A symlink works too if you would rather keep the default lookup: `sudo ln -s "$(command -v genisoimage)" /usr/local/bin/mkisofs`.
+
+**macOS**: Homebrew's `cdrtools` provides a real `mkisofs`, which is picked up from `PATH` automatically.
+
+```bash
+brew install cdrtools
+```
+
+**xorriso** is not a drop-in replacement, because imgboot passes mkisofs-style flags. Give it a wrapper and point `MKISOFS` at that:
+
+```bash
+printf '#!/bin/sh\nexec xorriso -as mkisofs "$@"\n' | sudo tee /usr/local/bin/mkisofs >/dev/null
+sudo chmod +x /usr/local/bin/mkisofs
+```
+
+The VM targets still need their own hypervisor tooling. `VBoxManage` is found automatically on both platforms; for VMware, put `vmrun` on `PATH` or set `VMRUN` — VMware Fusion keeps it at `/Applications/VMware Fusion.app/Contents/Public/vmrun`. UEFI ISO builds also need 7-Zip (`7z`, as `p7zip` on Linux) to unpack the EFI partition.
+
+CI exercises exactly this path: it installs `genisoimage` on Ubuntu, sets `MKISOFS`, and runs `npm test`.
 
 ## Tests
 
