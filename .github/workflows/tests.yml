@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
 
       # verify.js builds real ISO9660 images, so it needs a mkisofs-compatible
       # writer. genisoimage supports every flag lib/iso.js uses; this is the
@@ -40,7 +40,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
 
       # VMware Workstation cannot be installed on a hosted runner (licensed,
       # and it needs a hypervisor), so this job uses the xorriso that ships
