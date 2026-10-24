@@ -105,6 +105,8 @@ node test/boot-check.js                # boot them for real in VMware and Virtua
 node test/boot-check.js vmware         # or just one hypervisor
 ```
 
+CI runs the structural checks on Ubuntu (with `genisoimage`) and on Windows (with a standalone `mkisofs`), so both tool flavours and both path conventions stay covered. The boot tests need a real hypervisor, so they stay local.
+
 `verify.js` parses the generated ISO back: volume descriptor, El Torito validation entry and checksum, media type, boot-image LBA, and the boot sector bytes at that LBA. `boot-check.js` starts each artifact headless and waits for the fixture's banner on COM1, which works without guest tools.
 
 The boot fixtures are hand-assembled 16-bit boot sectors that print to both the BIOS console and COM1.

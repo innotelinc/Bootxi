@@ -31,3 +31,34 @@ jobs:
       # No dependencies to install: imgboot is plain Node + external tools.
       - name: Build fixtures and run structural checks
         run: npm test
+
+  windows:
+    name: Windows checks
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # VMware Workstation cannot be installed on a hosted runner (licensed,
+      # and it needs a hypervisor), so this job uses a standalone mkisofs
+      # build. It covers the Windows-only paths: `where` tool discovery, drive
+      # letters, VMDK/VMX generation and the zero-copy hard-link check.
+      - name: Install ISO tooling
+        shell: pwsh
+        run: |
+          choco install cdrtools -y --no-progress
+          $mkisofs = Join-Path $env:ChocolateyInstall 'bin\mkisofs.exe'
+          if (-not (Test-Path $mkisofs)) {
+            $mkisofs = (Get-ChildItem 'C:\ProgramData\chocolatey' -Recurse -Filter mkisofs.exe |
+              Select-Object -First 1).FullName
+          }
+          if (-not $mkisofs) { throw 'mkisofs was not installed by the cdrtools package' }
+          "MKISOFS=$mkisofs" >> $env:GITHUB_ENV
+          Write-Host "Using $mkisofs"
+          & $mkisofs -version
+
+      - name: Build fixtures and run structural checks
+        run: npm test
