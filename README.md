@@ -85,12 +85,7 @@ A symlink works too if you would rather keep the default lookup: `sudo ln -s "$(
 brew install cdrtools
 ```
 
-**xorriso** is not a drop-in replacement, because imgboot passes mkisofs-style flags. Give it a wrapper and point `MKISOFS` at that:
-
-```bash
-printf '#!/bin/sh\nexec xorriso -as mkisofs "$@"\n' | sudo tee /usr/local/bin/mkisofs >/dev/null
-sudo chmod +x /usr/local/bin/mkisofs
-```
+**xorriso** works directly: point `MKISOFS` at it (or have only `xorriso` on `PATH`) and imgboot runs it in mkisofs-compatibility mode, `xorriso -as mkisofs`. That is also what the Windows CI job uses, since MSYS2 ships xorriso but not mkisofs.
 
 The VM targets still need their own hypervisor tooling. `VBoxManage` is found automatically on both platforms; for VMware, put `vmrun` on `PATH` or set `VMRUN` — VMware Fusion keeps it at `/Applications/VMware Fusion.app/Contents/Public/vmrun`. UEFI ISO builds also need 7-Zip (`7z`, as `p7zip` on Linux) to unpack the EFI partition.
 
@@ -105,7 +100,7 @@ node test/boot-check.js                # boot them for real in VMware and Virtua
 node test/boot-check.js vmware         # or just one hypervisor
 ```
 
-CI runs the structural checks on Ubuntu (with `genisoimage`) and on Windows (with a standalone `mkisofs`), so both tool flavours and both path conventions stay covered. The boot tests need a real hypervisor, so they stay local.
+CI runs the structural checks on Ubuntu with `genisoimage` and on Windows with MSYS2's `xorriso`, so both writer flavours and both path conventions stay covered. VMware's bundled mkisofs cannot run on a hosted runner (Workstation is licensed and needs a hypervisor), so it is exercised only locally. The boot tests need a real hypervisor too, so they stay local.
 
 `verify.js` parses the generated ISO back: volume descriptor, El Torito validation entry and checksum, media type, boot-image LBA, and the boot sector bytes at that LBA. `boot-check.js` starts each artifact headless and waits for the fixture's banner on COM1, which works without guest tools.
 

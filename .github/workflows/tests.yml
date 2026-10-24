@@ -43,22 +43,20 @@ jobs:
           node-version: 20
 
       # VMware Workstation cannot be installed on a hosted runner (licensed,
-      # and it needs a hypervisor), so this job uses a standalone mkisofs
-      # build. It covers the Windows-only paths: `where` tool discovery, drive
-      # letters, VMDK/VMX generation and the zero-copy hard-link check.
+      # and it needs a hypervisor), so this job uses the xorriso that ships
+      # with MSYS2. That keeps the Windows-only paths covered: `where` tool
+      # discovery, drive letters, VMDK/VMX output, the zero-copy hard link and
+      # the xorriso mkisofs-emulation arguments.
       - name: Install ISO tooling
         shell: pwsh
         run: |
-          choco install cdrtools -y --no-progress
-          $mkisofs = Join-Path $env:ChocolateyInstall 'bin\mkisofs.exe'
-          if (-not (Test-Path $mkisofs)) {
-            $mkisofs = (Get-ChildItem 'C:\ProgramData\chocolatey' -Recurse -Filter mkisofs.exe |
-              Select-Object -First 1).FullName
-          }
-          if (-not $mkisofs) { throw 'mkisofs was not installed by the cdrtools package' }
-          "MKISOFS=$mkisofs" >> $env:GITHUB_ENV
-          Write-Host "Using $mkisofs"
-          & $mkisofs -version
+          $bash = 'C:\msys64\usr\bin\bash.exe'
+          if (-not (Test-Path $bash)) { throw 'MSYS2 is missing from this runner image' }
+          & $bash -lc 'pacman -Sy --noconfirm --needed xorriso'
+          $xorriso = 'C:\msys64\usr\bin\xorriso.exe'
+          if (-not (Test-Path $xorriso)) { throw 'xorriso was not installed by pacman' }
+          "MKISOFS=$xorriso" >> $env:GITHUB_ENV
+          & $xorriso -version
 
       - name: Build fixtures and run structural checks
         run: npm test
