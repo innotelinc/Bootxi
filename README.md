@@ -2,6 +2,10 @@
 
 [![tests](https://github.com/innotelinc/Bootxi/actions/workflows/tests.yml/badge.svg)](https://github.com/innotelinc/Bootxi/actions/workflows/tests.yml)
 
+[![CI](https://github.com/innotelinc/Bootxi/actions/workflows/ci.yml/badge.svg)](https://github.com/innotelinc/Bootxi/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+
 Turn disk images into things that actually boot: **bootable ISOs**, **VMware VMs** and **VirtualBox VMs**.
 
 Drop an `.img` in the browser, look at what's inside, pick your outputs, click create. It runs locally, needs no dependencies (`npm install` is not required) and uses the VMware/VirtualBox/7-Zip installs already on the machine.
@@ -9,6 +13,18 @@ Drop an `.img` in the browser, look at what's inside, pick your outputs, click c
 ```
 node server.js        →  http://127.0.0.1:5183
 ```
+
+## Why imgboot
+
+| Problem | Answer |
+| --- | --- |
+| A produced CD can silently fail to boot. | The image is inspected first and the UI says which outputs are possible. |
+| UEFI needs an ESP; a large BIOS image needs a disk. | imgboot builds the right El Torito catalog or VM instead of guessing. |
+| The conversion tools differ per machine. | It uses the VMware, VirtualBox and 7-Zip installs already present. |
+
+Its place in the stack is [docs/stack.md](docs/stack.md); the canonical
+definition of the shared layers is the
+[Innotel Platform Stack](https://github.com/innotelinc/innotel-platform-stack).
 
 ## Why there are three targets
 
@@ -120,3 +136,8 @@ test/                fixtures, structural checks, real boot checks
 ```
 
 The El Torito ISO is produced by `mkisofs` and then normalised: the validation entry gets its `CD001` ID and a recomputed checksum, because mkisofs leaves that field blank and stricter firmware dislikes it. For UEFI ISOs the catalog's boot entry is also switched to platform `0xEF`, which mkisofs 2.01 has no flag for.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Copyright © 2026 Innotel Inc. Upstream material,
+where a directory carries its own licence, remains under that licence.

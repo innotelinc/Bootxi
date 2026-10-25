@@ -1,0 +1,59 @@
+# ci.yml — the repo's own static checks.
+#
+# The attribution guard and the conformity audit run in their own workflows;
+# this one checks the structure and the landing page so a broken shared layer
+# is caught here as well.
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  structure:
+    name: Repository structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Required files
+        run: |
+          set -euo pipefail
+          for f in README.md LICENSE .env.example web/landing/index.html docs/stack.md; do
+            if [ ! -f "$f" ]; then echo "::error::missing required file: $f"; exit 1; fi
+          done
+          echo "structure: ok"
+      - name: .gitignore covers .env
+        run: |
+          set -euo pipefail
+          grep -q '^\.env' .gitignore || { echo "::error::.gitignore does not list .env"; exit 1; }
+          echo ".gitignore: ok"
+
+  landing:
+    name: Landing page sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Landing sanity
+        run: |
+          set -euo pipefail
+          f=web/landing/index.html
+          grep -qi '<title>' "$f" || { echo "::error::landing has no <title>"; exit 1; }
+          grep -qi 'og:title' "$f" || { echo "::error::landing has no og:title"; exit 1; }
+          grep -qi 'data:image/svg+xml' "$f" || { echo "::error::landing has no inline SVG favicon"; exit 1; }
+          echo "landing: ok"
+
+  scripts:
+    name: Shell syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: bash -n
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files '*.sh' '.githooks/*')
+          for f in "${files[@]}"; do bash -n "$f"; done
+          echo "bash -n: ok (${#files[@]} script(s))"
