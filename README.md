@@ -14,6 +14,15 @@ Drop an `.img` in the browser, look at what's inside, pick your outputs, click c
 node server.js        →  http://127.0.0.1:5183
 ```
 
+> **imgboot** turns a raw or virtual disk image into the things it can actually
+> boot — an El Torito ISO, a VMware VM or a VirtualBox VM — after inspecting the
+> image and saying which outputs are possible. It is the **BuilderOps** utility in
+> the [Innotel Platform Stack](https://github.com/innotelinc/innotel-platform-stack):
+> it owns image inspection, the ISO builder and the VM exports, and consumes the
+> host's mkisofs/xorriso, 7-Zip, VMware and VirtualBox installs rather than
+> reimplementing them. Landing page:
+> [innotelinc.github.io/Bootxi](https://innotelinc.github.io/Bootxi/).
+
 ## Why imgboot
 
 | Problem | Answer |
